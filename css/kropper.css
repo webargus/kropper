@@ -26,7 +26,48 @@
     clip-path: polygon(10% 10%, 90% 10%, 90% 90%, 10% 90%);
 }
 
+.kropper-handle {
+    position: absolute;
+    width: 1em;
+    height: 1em;
+    background-color: white;
+    border-radius: 50%;
+    border: 1px solid black;
+    cursor: grab;
+}
 
+.kropper-handle.kropper-handle-left-top {
+    left: 10%;
+    top: 10%;
+}
+.kropper-handle.kropper-handle-left-middle {
+    left: 10%;
+    top: 50%;
+}
+.kropper-handle.kropper-handle-left-bottom {
+    left: 10%;
+    bottom: 10%;
+}
+.kropper-handle.kropper-handle-bottom-middle {
+    left: 50%;
+    bottom: 10%;
+}
+.kropper-handle.kropper-handle-bottom-right {
+    right: 10%;
+    bottom: 10%;
+}
+.kropper-handle.kropper-handle-right-middle {
+    right: 10%;
+    top: 50%;
+}
+.kropper-handle.kropper-handle-right-top {
+    right: 10%;
+    top: 10%;
+}
+.kropper-handle.kropper-handle-top-middle {
+    left: 50%;
+    top: 10%;
+}
 
 
 

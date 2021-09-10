@@ -1,30 +1,51 @@
 
 const Kropper = (_ => {
+    const img = document.createElement("img");
+    var container, rect, shadowboard, clipboard;
 
-    const create = (containerElement, options) => {
+    const create = (containerElement) => {
 
-        const shadowboard = containerElement.querySelector(".kropper-shadowboard");
-        const clipboard = containerElement.querySelector(".kropper-clipboard");
-        var img = document.createElement("img");
-        img.src = options.uri;
-        img.onload = _ => {
-            if(img.width >= img.height) {
-                containerElement.style.width = '400px';
-                containerElement.style.height = (img.height/img.width)*400 + 'px';
-            } else {
-                containerElement.style.height = '400px';
-                containerElement.style.width = (img.width/img.height)*400 + 'px';
-            }
-            img.style.aspectRatio = 'auto';
-            shadowboard.style.backgroundImage = `url(${img.src})`;
-            clipboard.style.backgroundImage = `url(${img.src})`;
-        };
+        container = containerElement;
+        rect = container.getBoundingClientRect();
+        shadowboard = containerElement.querySelector(".kropper-shadowboard");
+        clipboard = containerElement.querySelector(".kropper-clipboard");
+
+        container.querySelectorAll(".kropper-handle").forEach(el => {
+            el.addEventListener("mousedown", e => {
+                el.style.cursor = "grabbing";
+            });
+            ['mouseup', 'mouseout'].forEach(type => {
+                el.addEventListener(type, e => {
+                    el.style.cursor = "grab";
+                });
+            });
+        });
+
         img.addEventListener('mousemove', e => {
             // console.log(`mouse pos (${e.offsetX}, ${e.offsetY})`);
         });
     };
 
-    return { create: create };
+    const crop = uri => {
+        img.src = uri;
+        img.onload = _ => {
+            if(img.width >= img.height) {
+                container.style.width = `${rect.width}px`;
+                container.style.height = `${(img.height/img.width)*rect.height}px`;
+            } else {
+                container.style.height = `${rect.height}px`;
+                container.style.width = `${(img.width/img.height)*rect.width}px`;
+            }
+            img.style.aspectRatio = 'auto';
+            shadowboard.style.backgroundImage = `url(${img.src})`;
+            clipboard.style.backgroundImage = `url(${img.src})`;
+        };
+    };
+
+    return {
+        create: create,
+        crop: crop,
+     };
 
 })();
 
