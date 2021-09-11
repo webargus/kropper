@@ -24,30 +24,30 @@
 
 .kropper-handle {
     position: absolute;
-    width: 1em;
-    height: 1em;
+    width: .5em;
+    height: .5em;
     background-color: white;
     border-radius: 50%;
     border: 1px solid black;
     cursor: grab;
 }
 
-.kropper-handle.kropper-handle-left-middle {
+.kropper-handle.kropper-handle-left {
     left: 16px;
     top: 50%;
 }
 
-.kropper-handle.kropper-handle-bottom-middle {
+.kropper-handle.kropper-handle-bottom {
     left: 50%;
     bottom: 16px;
 }
 
-.kropper-handle.kropper-handle-right-middle {
+.kropper-handle.kropper-handle-right {
     right: 16px;
     top: 50%;
 }
 
-.kropper-handle.kropper-handle-top-middle {
+.kropper-handle.kropper-handle-top {
     left: 50%;
     top: 16px;
 }

@@ -9,18 +9,18 @@ const Kropper = (_ => {
     clipboard.style.clipPath = "inset(16px 16px 16px 16px)";
     // clipboard handles
     const handleLeft = document.createElement("div");
-    handleLeft.className = "kropper-handle kropper-handle-left-middle";
+    handleLeft.className = "kropper-handle kropper-handle-left";
     handleLeft.setAttribute("draggable", true);
     const handleBottom = document.createElement("div");
-    handleBottom.className = "kropper-handle kropper-handle-bottom-middle";
+    handleBottom.className = "kropper-handle kropper-handle-bottom";
     handleBottom.setAttribute("draggable", true);
     const handleRight = document.createElement("div");
-    handleRight.className = "kropper-handle kropper-handle-right-middle";
+    handleRight.className = "kropper-handle kropper-handle-right";
     handleRight.setAttribute("draggable", true);
     const handleTop = document.createElement("div");
-    handleTop.className = "kropper-handle kropper-handle-top-middle";
+    handleTop.className = "kropper-handle kropper-handle-top";
     handleTop.setAttribute("draggable", true);
-    var container, rect, dragHandle, dragX;
+    var container, rect, dragHandle, dragX, dragY;
 
     const crop = uri => {
         img.src = uri;
@@ -52,12 +52,48 @@ const Kropper = (_ => {
         return arr;
     };
 
+    const leftDrag = arr => {
+        arr[3] = dragX;
+        clipboard.style.clipPath = `inset(${arr.map(el => { return el + 'px'; }).join(' ')})`;
+    };
+
+    const rightDrag = arr => {
+        console.log("arr[1]", arr[1], "dragX", dragX, "arr[1]+dragX", arr[1]+dragX);
+        arr[1] = rect.width - dragX - 21;
+        clipboard.style.clipPath = `inset(${arr.map(el => { return el + 'px'; }).join(' ')})`;
+    };
+
+    const topDrag = arr => {
+        
+        clipboard.style.clipPath = `inset(${arr.map(el => { return el + 'px'; }).join(' ')})`;
+    };
+
+    const bottomDrag = arr => {
+        
+        clipboard.style.clipPath = `inset(${arr.map(el => { return el + 'px'; }).join(' ')})`;
+    };
+
     const handleDragOver = e => {
         e.preventDefault();
         dragX = e.offsetX;
-        const arr = getClipPathArray();
-        arr[3] = dragX;
-        clipboard.style.clipPath = `inset(${arr.map(el => { return el + 'px'; }).join(' ')})`;
+        dragY = e.offsetY;
+
+        var arr = getClipPathArray();
+        var handle = dragHandle.classList.value.match(/[^-]+$/)[0];
+        switch(handle) {
+            case 'left':
+                leftDrag(arr);
+                break;
+            case 'right':
+                rightDrag(arr);
+                break;
+            case 'top':
+                topDrag(arr);
+                break;
+            case 'bottom':
+                bottomDrag(arr);
+                break;
+        }
     };
 
     const create = (containerElement) => {
@@ -75,25 +111,24 @@ const Kropper = (_ => {
         shadowboard.addEventListener("dragover", handleDragOver);
 
         container.querySelectorAll(".kropper-handle").forEach(el => {
-            // el.addEventListener("mousedown", e => {
-            //     el.style.cursor = "grabbing";
-            // });
-            // ['mouseup', 'mouseout'].forEach(type => {
-            //     el.addEventListener(type, e => {
-            //         el.style.cursor = "grab";
-            //     });
-            // });
             el.addEventListener("dragstart", e => {
-                e.dataTransfer.setData('text/plain', null);
                 e.dataTransfer.effectAllowed = "move";
                 dragHandle = e.target;
             });
-            // el.addEventListener("dragover", e => {
-            //     // e.preventDefault();
-            //     dragHandle.style.visibility = 'hidden';
-            // });
             el.addEventListener("dragend", e => {
-                dragHandle.style.left = `${dragX}px`;
+                var handle = dragHandle.classList.value.match(/[^-]+$/)[0];
+                switch(handle) {
+                    case 'left':
+                       dragHandle.style.left = `${dragX}px`;
+                        break;
+                    case 'right':
+                        dragHandle.style.right = `${rect.width - dragX - 21}px`;
+                        break;
+                    case 'top':
+                    case 'bottom':
+                        dragHandle.style.top = `${dragY}px`;
+                        break;
+                }
             });
         });
     };
