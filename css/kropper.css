@@ -32,37 +32,24 @@
     cursor: grab;
 }
 
-.kropper-handle.kropper-handle-left-top {
-    left: 10%;
-    top: 10%;
-}
 .kropper-handle.kropper-handle-left-middle {
-    left: 10%;
+    left: 16px;
     top: 50%;
 }
-.kropper-handle.kropper-handle-left-bottom {
-    left: 10%;
-    bottom: 10%;
-}
+
 .kropper-handle.kropper-handle-bottom-middle {
     left: 50%;
-    bottom: 10%;
+    bottom: 16px;
 }
-.kropper-handle.kropper-handle-bottom-right {
-    right: 10%;
-    bottom: 10%;
-}
+
 .kropper-handle.kropper-handle-right-middle {
-    right: 10%;
+    right: 16px;
     top: 50%;
 }
-.kropper-handle.kropper-handle-right-top {
-    right: 10%;
-    top: 10%;
-}
+
 .kropper-handle.kropper-handle-top-middle {
     left: 50%;
-    top: 10%;
+    top: 16px;
 }
 
 

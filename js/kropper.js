@@ -1,11 +1,26 @@
 
 const Kropper = (_ => {
+    // globals
     const img = document.createElement("img");
-    var container, rect, shadowboard, clipboard, dragHandle, dragX;
-
-        img.addEventListener('mousemove', e => {
-            // console.log(`mouse pos (${e.offsetX}, ${e.offsetY})`);
-        });
+    const shadowboard = document.createElement("div");
+    shadowboard.className = "kropper-shadowboard";
+    const clipboard = document.createElement("div");
+    clipboard.className = "kropper-clipboard";
+    clipboard.style.clipPath = "inset(16px 16px 16px 16px)";
+    // clipboard handles
+    const handleLeft = document.createElement("div");
+    handleLeft.className = "kropper-handle kropper-handle-left-middle";
+    handleLeft.setAttribute("draggable", true);
+    const handleBottom = document.createElement("div");
+    handleBottom.className = "kropper-handle kropper-handle-bottom-middle";
+    handleBottom.setAttribute("draggable", true);
+    const handleRight = document.createElement("div");
+    handleRight.className = "kropper-handle kropper-handle-right-middle";
+    handleRight.setAttribute("draggable", true);
+    const handleTop = document.createElement("div");
+    handleTop.className = "kropper-handle kropper-handle-top-middle";
+    handleTop.setAttribute("draggable", true);
+    var container, rect, dragHandle, dragX;
 
     const crop = uri => {
         img.src = uri;
@@ -26,7 +41,6 @@ const Kropper = (_ => {
     const getClipPathArray = _ => {
         // hacky calculation to get array of four clip path integer values from element style clip-path string, regardless of string format
         const path = clipboard.style.clipPath;
-        console.log(path);
         // get just the integer values from clip path string into an array
         var arr = path.split(/\s+/).map(el => {return parseInt(el.match(/\d+/)[0]); });
         const length = arr.length;
@@ -35,7 +49,6 @@ const Kropper = (_ => {
         for(var i = 0; i < Math.ceil( (4 - length)/2 ); i++) {
             arr = [...arr, ...arr.slice(arr.length-2, 5-arr.length)];
         }
-        console.log(arr);
         return arr;
     };
 
@@ -45,15 +58,18 @@ const Kropper = (_ => {
         const arr = getClipPathArray();
         arr[3] = dragX;
         clipboard.style.clipPath = `inset(${arr.map(el => { return el + 'px'; }).join(' ')})`;
-        // console.log(e.offsetX, e.offsetY);
     };
 
     const create = (containerElement) => {
 
         container = containerElement;
         rect = container.getBoundingClientRect();
-        shadowboard = containerElement.querySelector(".kropper-shadowboard");
-        clipboard = containerElement.querySelector(".kropper-clipboard");
+        container.appendChild(shadowboard);
+        container.appendChild(clipboard);
+        container.appendChild(handleLeft);
+        container.appendChild(handleBottom);
+        container.appendChild(handleRight);
+        container.appendChild(handleTop);
 
         clipboard.addEventListener("dragover", handleDragOver);
         shadowboard.addEventListener("dragover", handleDragOver);
