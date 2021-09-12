@@ -8,19 +8,27 @@ const Kropper = (_ => {
     clipboard.className = "kropper-clipboard";
     clipboard.style.clipPath = "inset(16px 16px 16px 16px)";
     // clipboard handles
-    const handleLeft = document.createElement("div");
-    handleLeft.className = "kropper-handle kropper-handle-left";
-    handleLeft.setAttribute("draggable", true);
-    const handleBottom = document.createElement("div");
-    handleBottom.className = "kropper-handle kropper-handle-bottom";
-    handleBottom.setAttribute("draggable", true);
-    const handleRight = document.createElement("div");
-    handleRight.className = "kropper-handle kropper-handle-right";
-    handleRight.setAttribute("draggable", true);
-    const handleTop = document.createElement("div");
-    handleTop.className = "kropper-handle kropper-handle-top";
-    handleTop.setAttribute("draggable", true);
-    var container, rect, dragHandle, dragX, dragY;
+    const resizerLeft = document.createElement("div");
+    resizerLeft.className = "kropper-handle kropper-handle-left";
+    const resizerBottom = document.createElement("div");
+    resizerBottom.className = "kropper-handle kropper-handle-bottom";
+    const resizerRight = document.createElement("div");
+    resizerRight.className = "kropper-handle kropper-handle-right";
+    const resizerTop = document.createElement("div");
+    resizerTop.className = "kropper-handle kropper-handle-top";
+    var container, rect, dragHandle;
+
+    const drag = (_ => {
+
+        const cropMargin = 16;  // static
+
+        function create() {
+            const res = resizer;
+            var currPos = cropMargin;
+            var prevPos = cropMargin;
+        }
+
+    })();
 
     const crop = uri => {
         img.src = uri;
@@ -52,85 +60,71 @@ const Kropper = (_ => {
         return arr;
     };
 
-    const leftDrag = arr => {
-        arr[3] = dragX;
-        clipboard.style.clipPath = `inset(${arr.map(el => { return el + 'px'; }).join(' ')})`;
-    };
-
-    const rightDrag = arr => {
-        console.log("arr[1]", arr[1], "dragX", dragX, "arr[1]+dragX", arr[1]+dragX);
-        arr[1] = rect.width - dragX - 21;
-        clipboard.style.clipPath = `inset(${arr.map(el => { return el + 'px'; }).join(' ')})`;
-    };
-
-    const topDrag = arr => {
-        
-        clipboard.style.clipPath = `inset(${arr.map(el => { return el + 'px'; }).join(' ')})`;
-    };
-
-    const bottomDrag = arr => {
-        
-        clipboard.style.clipPath = `inset(${arr.map(el => { return el + 'px'; }).join(' ')})`;
-    };
-
-    const handleDragOver = e => {
-        e.preventDefault();
-        dragX = e.offsetX;
-        dragY = e.offsetY;
-
-        var arr = getClipPathArray();
-        var handle = dragHandle.classList.value.match(/[^-]+$/)[0];
-        switch(handle) {
-            case 'left':
-                leftDrag(arr);
-                break;
-            case 'right':
-                rightDrag(arr);
-                break;
-            case 'top':
-                topDrag(arr);
-                break;
-            case 'bottom':
-                bottomDrag(arr);
-                break;
-        }
-    };
-
     const create = (containerElement) => {
 
         container = containerElement;
         rect = container.getBoundingClientRect();
         container.appendChild(shadowboard);
         container.appendChild(clipboard);
-        container.appendChild(handleLeft);
-        container.appendChild(handleBottom);
-        container.appendChild(handleRight);
-        container.appendChild(handleTop);
+        container.appendChild(resizerLeft);
+        container.appendChild(resizerBottom);
+        container.appendChild(resizerRight);
+        container.appendChild(resizerTop);
 
-        clipboard.addEventListener("dragover", handleDragOver);
-        shadowboard.addEventListener("dragover", handleDragOver);
+        container.querySelectorAll(".kropper-handle").forEach(resizer => {
 
-        container.querySelectorAll(".kropper-handle").forEach(el => {
-            el.addEventListener("dragstart", e => {
-                e.dataTransfer.effectAllowed = "move";
+            const mousedown = e => {
                 dragHandle = e.target;
-            });
-            el.addEventListener("dragend", e => {
-                var handle = dragHandle.classList.value.match(/[^-]+$/)[0];
-                switch(handle) {
-                    case 'left':
-                       dragHandle.style.left = `${dragX}px`;
-                        break;
-                    case 'right':
-                        dragHandle.style.right = `${rect.width - dragX - 21}px`;
-                        break;
-                    case 'top':
-                    case 'bottom':
-                        dragHandle.style.top = `${dragY}px`;
-                        break;
-                }
-            });
+                
+                const mousemove = e => {
+                    let el = e.target;
+                    // abort if target element is the browser window or the handler itself to avoid mouse move 'bumps'!
+                    if(!(el.classList.contains("kropper-shadowboard") || el.classList.contains("kropper-clipboard"))) {
+                        return;
+                    }
+                    let dragX = e.offsetX;
+                    if(dragX < 0) {
+                        dragX = 0;
+                    } else if (dragX > rect.width) {
+                        dragX = rect.width;
+                    }
+                    console.log("dragX", dragX);
+                    let dragY = e.offsetY;
+            
+                    var arr = getClipPathArray();
+                    var handle = dragHandle.classList.value.match(/[^-]+$/)[0];
+                    switch(handle) {
+                        case 'left':
+                            arr[3] = dragX;
+                            dragHandle.style.left = dragX + "px";
+                            break;
+                        case 'right':
+                            arr[1] = rect.width - dragX;
+                            dragHandle.style.right = (rect.width - dragX) + "px";
+                            break;
+                        case 'top':
+                           
+                            break;
+                        case 'bottom':
+                            
+                            break;
+                    }
+                    clipboard.style.clipPath = `inset(${arr.map(el => { return el + 'px'; }).join(' ')})`;
+                };
+
+                const mouseup = _ => {
+                    console.log("mouseup");
+                    window.removeEventListener("mouseup", mouseup);
+                    window.removeEventListener("mousemove", mousemove);
+                };
+
+                window.addEventListener("mouseup", mouseup);
+                window.addEventListener("mousemove", mousemove);
+            };
+
+            resizer.addEventListener("mousedown", mousedown);
         });
+
     };
 
     return {
