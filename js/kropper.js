@@ -67,6 +67,7 @@ const Kropper = (_ => {
                 const mousemove = e => {
                     let el = e.target;
                     let dragX = e.offsetX;
+                    let dragY = e.offsetY;
 
                     [topY, rightX, bottomY, leftX] = getClipPathArray();
                     var handle = dragHandle.classList.value.match(/[^-]+$/)[0];
@@ -81,6 +82,7 @@ const Kropper = (_ => {
                                 leftX = 0;
                             }
                             dragHandle.style.left = leftX + "px";
+                            resizerTop.style.left = resizerBottom.style.left = leftX + (rect.width - leftX - rightX)/2 + "px";
                             break;
                         case 'right':
                             if(el == dragHandle) {
@@ -92,15 +94,33 @@ const Kropper = (_ => {
                                 rightX = 0;
                             }
                             dragHandle.style.right = rightX + "px";
+                            resizerTop.style.left = resizerBottom.style.left = leftX + (rect.width - leftX - rightX)/2 + "px";
                             break;
                         case 'top':
-                           
+                            if(el == dragHandle) {
+                                topY--;
+                            } else {
+                                topY += ( dragY > topY) ? 1 : -1;
+                            }
+                            if(topY < 0) {
+                                topY = 0;
+                            }
+                            dragHandle.style.top = topY + "px";
+                            resizerLeft.style.top = resizerRight.style.top = topY + (rect.height - topY - bottomY)/2 + "px";
                             break;
                         case 'bottom':
-                            
+                            if(el == dragHandle) {
+                                bottomY++;
+                            } else {
+                                bottomY += ( dragY < rect.height - bottomY ) ? 1 : -1;
+                            }
+                            if(bottomY < 0) {
+                                bottomY = 0;
+                            }
+                            dragHandle.style.bottom = bottomY + "px";
+                            resizerLeft.style.top = resizerRight.style.top = topY + (rect.height - topY - bottomY)/2 + "px";
                             break;
                     }
-                    // clipboard.style.clipPath = `inset(${arr.map(item => { return item + 'px'; }).join(' ')})`;
                     clipboard.style.clipPath = `inset(${[topY + 'px', rightX + 'px', bottomY + 'px', leftX + 'px'].join(' ')})`;
                 };
 
