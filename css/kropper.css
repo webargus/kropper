@@ -22,7 +22,7 @@
     opacity: .5;
 }
 
-.kropper-handle {
+.kropper-resizer {
     position: absolute;
     width: .5em;
     height: .5em;
