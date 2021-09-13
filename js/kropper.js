@@ -18,18 +18,6 @@ const Kropper = (_ => {
     resizerTop.className = "kropper-handle kropper-handle-top";
     var container, rect, dragHandle;
 
-    const drag = (_ => {
-
-        const cropMargin = 16;  // static
-
-        function create() {
-            const res = resizer;
-            var currPos = cropMargin;
-            var prevPos = cropMargin;
-        }
-
-    })();
-
     const crop = uri => {
         img.src = uri;
         img.onload = _ => {
@@ -78,29 +66,32 @@ const Kropper = (_ => {
                 
                 const mousemove = e => {
                     let el = e.target;
-                    // abort if target element is the browser window or the handler itself to avoid mouse move 'bumps'!
-                    if(!(el.classList.contains("kropper-shadowboard") || el.classList.contains("kropper-clipboard"))) {
-                        return;
-                    }
                     let dragX = e.offsetX;
-                    if(dragX < 0) {
-                        dragX = 0;
-                    } else if (dragX > rect.width) {
-                        dragX = rect.width;
-                    }
-                    console.log("dragX", dragX);
-                    let dragY = e.offsetY;
-            
-                    var arr = getClipPathArray();
+
+                    [topY, rightX, bottomY, leftX] = getClipPathArray();
                     var handle = dragHandle.classList.value.match(/[^-]+$/)[0];
                     switch(handle) {
                         case 'left':
-                            arr[3] = dragX;
-                            dragHandle.style.left = dragX + "px";
+                            if(el == dragHandle) {
+                               leftX--;
+                            } else {
+                                leftX += (dragX > leftX) ? 1 : -1;
+                            }
+                            if(leftX < 0) {
+                                leftX = 0;
+                            }
+                            dragHandle.style.left = leftX + "px";
                             break;
                         case 'right':
-                            arr[1] = rect.width - dragX;
-                            dragHandle.style.right = (rect.width - dragX) + "px";
+                            if(el == dragHandle) {
+                                rightX--;
+                            } else {
+                                rightX += (dragX > rect.width - rightX) ? -1 : 1;
+                            }
+                            if(rightX < 0) {
+                                rightX = 0;
+                            }
+                            dragHandle.style.right = rightX + "px";
                             break;
                         case 'top':
                            
@@ -109,7 +100,8 @@ const Kropper = (_ => {
                             
                             break;
                     }
-                    clipboard.style.clipPath = `inset(${arr.map(el => { return el + 'px'; }).join(' ')})`;
+                    // clipboard.style.clipPath = `inset(${arr.map(item => { return item + 'px'; }).join(' ')})`;
+                    clipboard.style.clipPath = `inset(${[topY + 'px', rightX + 'px', bottomY + 'px', leftX + 'px'].join(' ')})`;
                 };
 
                 const mouseup = _ => {
