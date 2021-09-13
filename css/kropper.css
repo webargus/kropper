@@ -32,25 +32,6 @@
     cursor: grab;
 }
 
-.kropper-handle.kropper-handle-left {
-    left: 16px;
-    top: 50%;
-}
-
-.kropper-handle.kropper-handle-bottom {
-    left: 50%;
-    bottom: 16px;
-}
-
-.kropper-handle.kropper-handle-right {
-    right: 16px;
-    top: 50%;
-}
-
-.kropper-handle.kropper-handle-top {
-    left: 50%;
-    top: 16px;
-}
 
 
 

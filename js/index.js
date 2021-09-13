@@ -20,6 +20,8 @@ window.onload = _  => {
         loadRandomImage();
     });
 
+    loadRandomImage();
+
 };
 
 

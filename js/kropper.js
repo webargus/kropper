@@ -7,16 +7,21 @@ const Kropper = (_ => {
     const clipboard = document.createElement("div");
     clipboard.className = "kropper-clipboard";
     clipboard.style.clipPath = "inset(16px 16px 16px 16px)";
-    // clipboard handles
+    // clipboard resizers
     const resizerLeft = document.createElement("div");
-    resizerLeft.className = "kropper-handle kropper-handle-left";
+    resizerLeft.className = "kropper-handle";
     const resizerBottom = document.createElement("div");
-    resizerBottom.className = "kropper-handle kropper-handle-bottom";
+    resizerBottom.className = "kropper-handle";
     const resizerRight = document.createElement("div");
-    resizerRight.className = "kropper-handle kropper-handle-right";
+    resizerRight.className = "kropper-handle";
     const resizerTop = document.createElement("div");
-    resizerTop.className = "kropper-handle kropper-handle-top";
+    resizerTop.className = "kropper-handle";
     var container, rect, dragHandle;
+
+    const resetResizers = _  => {
+        resizerLeft.style.top = resizerRight.style.top = resizerTop.style.left = resizerBottom.style.left = '50%';
+        resizerLeft.style.left = resizerRight.style.right = resizerTop.style.top = resizerBottom.style.bottom = '16px';
+    };
 
     const crop = uri => {
         img.src = uri;
@@ -31,6 +36,7 @@ const Kropper = (_ => {
             img.style.aspectRatio = 'auto';
             shadowboard.style.backgroundImage = `url(${img.src})`;
             clipboard.style.backgroundImage = `url(${img.src})`;
+            resetResizers();
         };
     };
 
@@ -70,9 +76,8 @@ const Kropper = (_ => {
                     let dragY = e.offsetY;
 
                     [topY, rightX, bottomY, leftX] = getClipPathArray();
-                    var handle = dragHandle.classList.value.match(/[^-]+$/)[0];
-                    switch(handle) {
-                        case 'left':
+                    switch(dragHandle) {
+                        case resizerLeft:
                             if(el == dragHandle) {
                                leftX--;
                             } else {
@@ -84,7 +89,7 @@ const Kropper = (_ => {
                             dragHandle.style.left = leftX + "px";
                             resizerTop.style.left = resizerBottom.style.left = leftX + (rect.width - leftX - rightX)/2 + "px";
                             break;
-                        case 'right':
+                        case resizerRight:
                             if(el == dragHandle) {
                                 rightX--;
                             } else {
@@ -96,7 +101,7 @@ const Kropper = (_ => {
                             dragHandle.style.right = rightX + "px";
                             resizerTop.style.left = resizerBottom.style.left = leftX + (rect.width - leftX - rightX)/2 + "px";
                             break;
-                        case 'top':
+                        case resizerTop:
                             if(el == dragHandle) {
                                 topY--;
                             } else {
@@ -108,7 +113,7 @@ const Kropper = (_ => {
                             dragHandle.style.top = topY + "px";
                             resizerLeft.style.top = resizerRight.style.top = topY + (rect.height - topY - bottomY)/2 + "px";
                             break;
-                        case 'bottom':
+                        case resizerBottom:
                             if(el == dragHandle) {
                                 bottomY++;
                             } else {
