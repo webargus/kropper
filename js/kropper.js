@@ -15,34 +15,78 @@ const Kropper = (_ => {
     const resizerTop = document.createElement("div");
     resizerTop.className = "kropper-resizer";
     //  DOM image to hold user-submitted image for cropping
-    const img = document.createElement("img");
+    const domImage = document.createElement("img");
     var container,      // user-defined element
     userRect,            // container JS bounding rect
-    imgRect;             // JS bounding rect of img loaded via crop function
+    imgRect;             // JS scaled bounding rect of img loaded via crop function
 
-    const resetResizers = _  => {
+    const reset = _  => {
         resizerLeft.style.top = resizerRight.style.top = resizerTop.style.left = resizerBottom.style.left = '50%';
         resizerLeft.style.left = resizerRight.style.right = resizerTop.style.top = resizerBottom.style.bottom = '16px';
         clipboard.style.clipPath = "inset(16px 16px 16px 16px)";
+        CropObj.update(16, 16, 16, 16);
     };
 
     const crop = uri => {
-        img.src = uri;
-        img.onload = _ => {
-            if(img.width >= img.height) {
-                container.style.width = `${userRect.width}px`;
-                container.style.height = `${(img.height/img.width)*userRect.height}px`;
-            } else {
-                container.style.height = `${userRect.height}px`;
-                container.style.width = `${(img.width/img.height)*userRect.width}px`;
-            }
-            imgRect = container.getBoundingClientRect();
-            img.style.aspectRatio = 'auto';
-            shadowboard.style.backgroundImage = `url(${img.src})`;
-            clipboard.style.backgroundImage = `url(${img.src})`;
-            resetResizers();
-        };
+        return new Promise((resolve, reject) => {
+
+            domImage.src = uri;
+            domImage.onload = _ => {
+                if(domImage.width >= domImage.height) {
+                    container.style.width = `${userRect.width}px`;
+                    container.style.height = `${(domImage.height/domImage.width)*userRect.height}px`;
+                } else {
+                    container.style.height = `${userRect.height}px`;
+                    container.style.width = `${(domImage.width/domImage.height)*userRect.width}px`;
+                }
+                imgRect = container.getBoundingClientRect();
+                domImage.style.aspectRatio = 'auto';
+                shadowboard.style.backgroundImage = `url(${domImage.src})`;
+                clipboard.style.backgroundImage = `url(${domImage.src})`;
+                reset();
+                resolve("ready");
+            };
+        });
+
     };
+
+    const CropObj = (_ => {
+        //
+        const canvas = document.createElement("canvas");
+        const canvasContext = canvas.getContext("2d");
+        var sCropWidth,       // width of crop region in source image
+        sCropHeight,            // height of crop region in souce image
+        sX, sY;                     // coords of top left crop rectangle in source image
+    
+        const update = (left, top, right, bottom)  => {
+            // calc width and height of clipboard img
+            const cropWidth = imgRect.width - left - right;
+            const cropHeight = imgRect.height - top - bottom;
+            // calc corresponding width and height in source img
+            sCropWidth = cropWidth * domImage.width / imgRect.width;
+            sCropHeight = cropHeight * domImage.height / imgRect.height;
+            // calc top left coords of img to crop in source img
+            sX = left * domImage.width / imgRect.width;
+            sY = top * domImage.height / imgRect.height;
+            // trigger custom oncrop event
+            const event = new CustomEvent("crop", { detail: {x: sX, y: sY, width: sCropWidth, height: sCropHeight } });
+            dispatchEvent(event);
+        };
+
+        const result = callback => {
+            canvas.width = sCropWidth;
+            canvas.height = sCropHeight;
+            canvasContext.drawImage(domImage, sX, sY, canvas.width, canvas.height);
+            canvas.toBlob( blob => {
+                callback(blob);
+            }, "image/png", 1);
+        };
+
+        return {
+            update: update,
+            result: result
+        };
+    })();
 
     const getClipPathArray = _ => {
         // hacky calculation to get array of four clip path integer values from element style clip-path string, regardless of string format
@@ -139,6 +183,8 @@ const Kropper = (_ => {
                             break;
                     }
                     clipboard.style.clipPath = `inset(${[topY + 'px', rightX + 'px', bottomY + 'px', leftX + 'px'].join(' ')})`;
+                    // call crop event dispatcher
+                    CropObj.update(leftX, topY, rightX, bottomY);
                 };
 
                 const mouseup = _ => {
@@ -159,6 +205,7 @@ const Kropper = (_ => {
     return {
         create: create,
         crop: crop,
+        result: CropObj.result,
      };
 
 })();
